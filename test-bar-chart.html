@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bar Chart Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        #svg-container {
+            margin: 20px 0;
+            border: 1px solid #ccc;
+            padding: 20px;
+            background: #f9f9f9;
+        }
+        .test-info {
+            margin: 20px 0;
+            padding: 10px;
+            background: #e8f4f8;
+            border-radius: 5px;
+        }
+        .error {
+            color: #d62728;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bar Chart Rendering Test</h1>
+    <div class="test-info">
+        <h3>Test Data</h3>
+        <pre id="test-data">Loading...</pre>
+    </div>
+    <div id="svg-container">
+        <h3>SVG Output</h3>
+        <div id="svg-output">Rendering chart...</div>
+    </div>
+    <div class="test-info">
+        <h3>Rendering Results</h3>
+        <div id="render-results">Checking...</div>
+    </div>
+
+    <script type="module">
+        // Import the chart converter
+        import { ChartToSvgConverter } from './src/chart/chart-to-svg.ts';
+
+        // Fetch the test XML data
+        fetch('./src/chart/test-data/chart-bar.xml')
+            .then(response => response.text())
+            .then(xmlText => {
+                document.getElementById('test-data').textContent = xmlText;
+                
+                try {
+                    // Initialize converter and render SVG
+                    const converter = new ChartToSvgConverter();
+                    const svg = converter.convertToSvg(xmlText, { width: 800, height: 600 });
+                    
+                    // Append SVG to container
+                    const container = document.getElementById('svg-output');
+                    container.innerHTML = '';
+                    container.appendChild(svg);
+                    
+                    // Display success message
+                    const resultsDiv = document.getElementById('render-results');
+                    resultsDiv.innerHTML = '<strong style="color: #2ca02c;">SUCCESS: Bar chart rendered correctly!</strong><br>' +
+                        'SVG width: ' + svg.getAttribute('width') + '<br>' +
+                        'SVG height: ' + svg.getAttribute('height') + '<br>' +
+                        'Elements: ' + svg.childElementCount + ' elements';
+                    
+                } catch (error) {
+                    console.error('Error rendering chart:', error);
+                    const container = document.getElementById('svg-output');
+                    container.innerHTML = '<div class="error">ERROR: ' + error.message + '</div>';
+                    
+                    const resultsDiv = document.getElementById('render-results');
+                    resultsDiv.innerHTML = '<strong class="error">FAILED: ' + error.message + '</strong>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading test data:', error);
+                document.getElementById('test-data').textContent = 'ERROR: ' + error.message;
+            });
+    </script>
+</body>
+</html>

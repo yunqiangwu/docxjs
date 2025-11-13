@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pie Chart Test</title>
+</head>
+<body>
+    <h1>Pie Chart Axis Removal Test</h1>
+    <div id="chart-container"></div>
+    <div id="analysis-results"></div>
+    
+    <script>
+        // Import the library
+        import * as docx from './dist/docx-preview.js';
+        
+        // Read the pie chart XML file
+        fetch('test-data/chart-pie.xml')
+            .then(response => response.text())
+            .then(xmlText => {
+                console.log('XML loaded successfully');
+                
+                try {
+                    // Render the chart
+                    const converter = new docx.ChartToSvgConverter();
+                    const svg = converter.convertToSvg(xmlText, { width: 800, height: 600 });
+                    
+                    // Append SVG to container
+                    const container = document.getElementById('chart-container');
+                    container.appendChild(svg);
+                    
+                    // Analyze the SVG
+                    const axisLines = svg.querySelectorAll('line');
+                    const textLabels = svg.querySelectorAll('text');
+                    const pieSlices = svg.querySelectorAll('path');
+                    
+                    // Count only axis-related labels
+                    let axisRelatedLabels = 0;
+                    textLabels.forEach(label => {
+                        const y = parseInt(label.getAttribute('y') || '0');
+                        const x = parseInt(label.getAttribute('x') || '0');
+                        
+                        // Axis labels are typically at the bottom or left
+                        if (y > 550 || x < 100) {
+                            axisRelatedLabels++;
+                        }
+                    });
+                    
+                    const analysis = {
+                        slices: pieSlices.length,
+                        axisLines: axisLines.length,
+                        totalLabels: textLabels.length,
+                        axisLabels: axisRelatedLabels
+                    };
+                    
+                    // Display analysis results
+                    const resultsDiv = document.getElementById('analysis-results');
+                    resultsDiv.innerHTML = `
+                        <h3>Analysis Results:</h3>
+                        <p>✓ Pie slices: ${analysis.slices}</p>
+                        <p>✗ Axis lines: ${analysis.axisLines}</p>
+                        <p>✓ Total text labels: ${analysis.totalLabels}</p>
+                        <p>✗ Axis-related labels: ${analysis.axisLabels}</p>
+                        <hr>
+                        <p style="font-weight: bold; color: ${(analysis.axisLines === 0 && analysis.axisLabels === 0) ? 'green' : 'red'}">
+                            ${(analysis.axisLines === 0 && analysis.axisLabels === 0) ? '✅ PASSED: No axis elements found!' : '❌ FAILED: Axis elements still exist!'}
+                        </p>
+                    `;
+                    
+                    console.log('Analysis:', analysis);
+                    
+                } catch (error) {
+                    console.error('Error rendering chart:', error);
+                    document.getElementById('chart-container').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading XML:', error);
+                document.getElementById('chart-container').innerHTML = `<p style="color: red;">Error loading XML: ${error.message}</p>`;
+            });
+    </script>
+</body>
+</html>

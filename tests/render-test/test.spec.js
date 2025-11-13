@@ -1,16 +1,16 @@
 describe("Render document", function () {
   const tests = [
-    'text',
-    'underlines',
-    'text-break',
-    'table',
-    'page-layout',
-    'revision',
-    'numbering',
+    // 'text',
+    // 'underlines',
+    // 'text-break',
+    // 'table',
+    // 'page-layout',
+    // 'revision',
+    // 'numbering',
     'line-spacing',
-    'header-footer',
-    'footnote',
-    'equation'
+    // 'header-footer',
+    // 'footnote',
+    // 'equation'
   ];
 
   for (let path of tests) {

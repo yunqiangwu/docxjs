@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试图表修复</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            min-height: 200px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>测试图表修复</h1>
+    <div id="result"></div>
+
+    <script>
+        // 定义命名空间映射
+        const ns = {
+            c: 'http://schemas.openxmlformats.org/drawingml/2006/chart',
+            a: 'http://schemas.openxmlformats.org/drawingml/2006/main'
+        };
+
+        // 创建一个简单的折线图XML结构
+        const lineChartXml = `
+            <c:chart xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
+                <c:plotArea>
+                    <c:lineChart>
+                        <c:ser idx="0">
+                            <c:tx>
+                                <c:strRef>
+                                    <c:strCache>
+                                        <c:pt idx="0">
+                                            <c:v>系列1</c:v>
+                                        </c:pt>
+                                    </c:strCache>
+                                </c:strRef>
+                            </c:tx>
+                            <c:val>
+                                <c:numRef>
+                                    <c:numCache>
+                                        <c:pt idx="0">
+                                            <c:v>10</c:v>
+                                        </c:pt>
+                                        <c:pt idx="1">
+                                            <c:v>20</c:v>
+                                        </c:pt>
+                                    </c:numCache>
+                                </c:numRef>
+                            </c:val>
+                        </c:ser>
+                        <c:cat>
+                            <c:strRef>
+                                <c:strCache>
+                                    <c:pt idx="0">
+                                        <c:v>类别1</c:v>
+                                    </c:pt>
+                                    <c:pt idx="1">
+                                        <c:v>类别2</c:v>
+                                    </c:pt>
+                                </c:strCache>
+                            </c:strRef>
+                        </c:cat>
+                    </c:lineChart>
+                    <c:valAx>
+                        <c:scaling>
+                            <c:min val="0"/>
+                            <c:max val="30"/>
+                        </c:scaling>
+                    </c:valAx>
+                </c:plotArea>
+                <c:title>
+                    <c:tx>
+                        <c:strRef>
+                            <c:strCache>
+                                <c:pt idx="0">
+                                    <c:v>折线图标题</c:v>
+                                </c:pt>
+                            </c:strCache>
+                        </c:strRef>
+                    </c:tx>
+                </c:title>
+            </c:chart>`;
+
+        // 创建一个简单的条形图XML结构
+        const barChartXml = `
+            <c:chart xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
+                <c:plotArea>
+                    <c:barChart>
+                        <c:ser idx="0">
+                            <c:tx>
+                                <c:strRef>
+                                    <c:strCache>
+                                        <c:pt idx="0">
+                                            <c:v>系列1</c:v>
+                                        </c:pt>
+                                    </c:strCache>
+                                </c:strRef>
+                            </c:tx>
+                            <c:val>
+                                <c:numRef>
+                                    <c:numCache>
+                                        <c:pt idx="0">
+                                            <c:v>10</c:v>
+                                        </c:pt>
+                                        <c:pt idx="1">
+                                            <c:v>20</c:v>
+                                        </c:pt>
+                                    </c:numCache>
+                                </c:numRef>
+                            </c:val>
+                        </c:ser>
+                        <c:cat>
+                            <c:strRef>
+                                <c:strCache>
+                                    <c:pt idx="0">
+                                        <c:v>类别1</c:v>
+                                    </c:pt>
+                                    <c:pt idx="1">
+                                        <c:v>类别2</c:v>
+                                    </c:pt>
+                                </c:strCache>
+                            </c:strRef>
+                        </c:cat>
+                    </c:barChart>
+                    <c:valAx>
+                        <c:scaling>
+                            <c:min val="0"/>
+                            <c:max val="30"/>
+                        </c:scaling>
+                    </c:valAx>
+                </c:plotArea>
+                <c:title>
+                    <c:tx>
+                        <c:strRef>
+                            <c:strCache>
+                                <c:pt idx="0">
+                                    <c:v>条形图标题</c:v>
+                                </c:pt>
+                            </c:strCache>
+                        </c:strRef>
+                    </c:tx>
+                </c:title>
+            </c:chart>`;
+
+        // 创建饼图XML结构
+        const pieChartXml = `
+            <c:chart xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                <c:plotArea>
+                    <c:pieChart>
+                        <c:ser idx="0">
+                            <c:cat>
+                                <c:strRef>
+                                    <c:f>Sheet1!$B$2:$B$5</c:f>
+                                    <c:strCache>
+                                        <c:ptCount val="4" />
+                                        <c:pt idx="0">
+                                            <c:v>Q1</c:v>
+                                        </c:pt>
+                                        <c:pt idx="1">
+                                            <c:v>Q2</c:v>
+                                        </c:pt>
+                                        <c:pt idx="2">
+                                            <c:v>Q3</c:v>
+                                        </c:pt>
+                                        <c:pt idx="3">
+                                            <c:v>Q4</c:v>
+                                        </c:pt>
+                                    </c:strCache>
+                                </c:strRef>
+                            </c:cat>
+                            <c:val>
+                                <c:numRef>
+                                    <c:f>Sheet1!$C$2:$C$5</c:f>
+                                    <c:numCache>
+                                        <c:ptCount val="4" />
+                                        <c:pt idx="0">
+                                            <c:v>1000</c:v>
+                                        </c:pt>
+                                        <c:pt idx="1">
+                                            <c:v>2000</c:v>
+                                        </c:pt>
+                                        <c:pt idx="2">
+                                            <c:v>1500</c:v>
+                                        </c:pt>
+                                        <c:pt idx="3">
+                                            <c:v>2500</c:v>
+                                        </c:pt>
+                                    </c:numCache>
+                                </c:numRef>
+                            </c:val>
+                            <c:dPt idx="0">
+                                <c:spPr>
+                                    <a:scrgbClr r="255" g="0" b="0" />
+                                </c:spPr>
+                            </c:dPt>
+                            <c:dPt idx="1">
+                                <c:spPr>
+                                    <a:scrgbClr r="0" g="255" b="0" />
+                                </c:spPr>
+                            </c:dPt>
+                            <c:dPt idx="2">
+                                <c:spPr>
+                                    <a:scrgbClr r="0" g="0" b="255" />
+                                </c:spPr>
+                            </c:dPt>
+                            <c:dPt idx="3">
+                                <c:spPr>
+                                    <a:scrgbClr r="255" g="255" b="0" />
+                                </c:spPr>
+                            </c:dPt>
+                        </c:ser>
+                    </c:pieChart>
+                </c:plotArea>
+                <c:title>
+                    <c:tx>
+                        <c:strRef>
+                            <c:strCache>
+                                <c:pt idx="0">
+                                    <c:v>销售额饼图</c:v>
+                                </c:pt>
+                            </c:strCache>
+                        </c:strRef>
+                    </c:tx>
+                </c:title>
+            </c:chart>`;
+
+        // 创建面积图XML结构
+        const areaChartXml = `
+            <c:chart xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                <c:plotArea>
+                    <c:areaChart>
+                        <c:ser idx="0">
+                            <c:cat>
+                                <c:numRef>
+                                    <c:f>Sheet1!$A$2:$A$5</c:f>
+                                    <c:numCache>
+                                        <c:ptCount val="4" />
+                                        <c:pt idx="0">
+                                            <c:v>37261</c:v>
+                                        </c:pt>
+                                        <c:pt idx="1">
+                                            <c:v>37352</c:v>
+                                        </c:pt>
+                                        <c:pt idx="2">
+                                            <c:v>37444</c:v>
+                                        </c:pt>
+                                        <c:pt idx="3">
+                                            <c:v>37536</c:v>
+                                        </c:pt>
+                                    </c:numCache>
+                                </c:numRef>
+                            </c:cat>
+                            <c:val>
+                                <c:numRef>
+                                    <c:f>Sheet1!$B$2:$B$5</c:f>
+                                    <c:numCache>
+                                        <c:ptCount val="4" />
+                                        <c:pt idx="0">
+                                            <c:v>100</c:v>
+                                        </c:pt>
+                                        <c:pt idx="1">
+                                            <c:v>200</c:v>
+                                        </c:pt>
+                                        <c:pt idx="2">
+                                            <c:v>150</c:v>
+                                        </c:pt>
+                                        <c:pt idx="3">
+                                            <c:v>250</c:v>
+                                        </c:pt>
+                                    </c:numCache>
+                                </c:numRef>
+                            </c:val>
+                            <c:spPr>
+                                <a:scrgbClr r="120" g="191" b="220" />
+                            </c:spPr>
+                        </c:ser>
+                        <c:ser idx="1">
+                            <c:cat>
+                                <c:numRef>
+                                    <c:f>Sheet1!$A$2:$A$5</c:f>
+                                    <c:numCache>
+                                        <c:ptCount val="4" />
+                                        <c:pt idx="0">
+                                            <c:v>37261</c:v>
+                                        </c:pt>
+                                        <c:pt idx="1">
+                                            <c:v>37352</c:v>
+                                        </c:pt>
+                                        <c:pt idx="2">
+                                            <c:v>37444</c:v>
+                                        </c:pt>
+                                        <c:pt idx="3">
+                                            <c:v>37536</c:v>
+                                        </c:pt>
+                                    </c:numCache>
+                                </c:numRef>
+                            </c:cat>
+                            <c:val>
+                                <c:numRef>
+                                    <c:f>Sheet1!$C$2:$C$5</c:f>
+                                    <c:numCache>
+                                        <c:ptCount val="4" />
+                                        <c:pt idx="0">
+                                            <c:v>150</c:v>
+                                        </c:pt>
+                                        <c:pt idx="1">
+                                            <c:v>250</c:v>
+                                        </c:pt>
+                                        <c:pt idx="2">
+                                            <c:v>200</c:v>
+                                        </c:pt>
+                                        <c:pt idx="3">
+                                            <c:v>300</c:v>
+                                        </c:pt>
+                                    </c:numCache>
+                                </c:numRef>
+                            </c:val>
+                            <c:spPr>
+                                <a:scrgbClr r="220" g="120" b="177" />
+                            </c:spPr>
+                        </c:ser>
+                    </c:areaChart>
+                    <c:valAx>
+                        <c:scaling>
+                            <c:min val="0"/>
+                            <c:max val="350"/>
+                        </c:scaling>
+                    </c:valAx>
+                </c:plotArea>
+                <c:title>
+                    <c:tx>
+                        <c:strRef>
+                            <c:strCache>
+                                <c:pt idx="0">
+                                    <c:v>销售趋势面积图</c:v>
+                                </c:pt>
+                            </c:strCache>
+                        </c:strRef>
+                    </c:tx>
+                </c:title>
+            </c:chart>`;
+
+        // 获取结果显示区域
+        const resultDiv = document.getElementById('result');
+
+        // 辅助函数：添加日志信息
+        function log(message, isSuccess = true) {
+            const div = document.createElement('div');
+            div.innerHTML = isSuccess ? `<span class="success">✓ ${message}</span>` : `<span class="error">✗ ${message}</span>`;
+            resultDiv.appendChild(div);
+        }
+
+        // 辅助函数：添加测试标题
+        function addTestTitle(title) {
+            const h3 = document.createElement('h3');
+            h3.textContent = title;
+            resultDiv.appendChild(h3);
+        }
+
+        // 测试函数
+        function runTests() {
+            // 解析XML
+            const parser = new DOMParser();
+            
+            // 测试折线图
+            addTestTitle('测试折线图:');
+            const lineChartDoc = parser.parseFromString(lineChartXml, 'text/xml');
+            const lineChart = lineChartDoc.getElementsByTagNameNS(ns.c, 'lineChart')[0];
+            if (lineChart) {
+                log('成功获取到lineChart元素');
+                const serElements = lineChart.getElementsByTagNameNS(ns.c, 'ser');
+                log(`成功获取到${serElements.length}个系列元素`);
+            } else {
+                log('无法获取到lineChart元素', false);
+            }
+
+            // 测试条形图
+            addTestTitle('\n测试条形图:');
+            const barChartDoc = parser.parseFromString(barChartXml, 'text/xml');
+            const plotArea = barChartDoc.getElementsByTagNameNS(ns.c, 'plotArea')[0];
+            
+            // 模拟chart-to-svg.ts中的代码逻辑
+            let chartType = '';
+            if (plotArea.getElementsByTagNameNS(ns.c, 'lineChart').length > 0) {
+                chartType = 'line';
+            } else if (plotArea.getElementsByTagNameNS(ns.c, 'barChart').length > 0) {
+                chartType = 'bar';
+            } else if (plotArea.getElementsByTagNameNS(ns.c, 'pieChart').length > 0) {
+                chartType = 'pie';
+            } else if (plotArea.getElementsByTagNameNS(ns.c, 'areaChart').length > 0) {
+                chartType = 'area';
+            }
+            log(`检测到图表类型: ${chartType}`);
+
+            // 使用修复后的方法获取图表元素
+            const chartElement = plotArea.getElementsByTagNameNS(ns.c, `${chartType}Chart`)[0];
+            if (chartElement) {
+                log('成功获取到chartElement元素');
+                const serElements = chartElement.getElementsByTagNameNS(ns.c, 'ser');
+                log(`成功获取到${serElements.length}个系列元素`);
+                const catElement = chartElement.getElementsByTagNameNS(ns.c, 'cat')[0];
+                if (catElement) {
+                    log('成功获取到cat元素');
+                } else {
+                    log('无法获取到cat元素', false);
+                }
+            } else {
+                log('无法获取到chartElement元素', false);
+            }
+
+            // 测试饼图
+            addTestTitle('\n测试饼图:');
+            const pieChartDoc = parser.parseFromString(pieChartXml, 'text/xml');
+            const piePlotArea = pieChartDoc.getElementsByTagNameNS(ns.c, 'plotArea')[0];
+            
+            // 模拟chart-to-svg.ts中的代码逻辑
+            let pieChartType = '';
+            if (piePlotArea.getElementsByTagNameNS(ns.c, 'pieChart').length > 0) {
+                pieChartType = 'pie';
+            }
+            log(`检测到图表类型: ${pieChartType}`);
+
+            // 使用修复后的方法获取图表元素
+            const pieChartElement = piePlotArea.getElementsByTagNameNS(ns.c, `${pieChartType}Chart`)[0];
+            if (pieChartElement) {
+                log('成功获取到pieChartElement元素');
+                const pieSerElements = pieChartElement.getElementsByTagNameNS(ns.c, 'ser');
+                log(`成功获取到${pieSerElements.length}个系列元素`);
+                
+                // 测试分类数据提取
+                const firstPieSer = pieSerElements[0];
+                const pieCatElement = firstPieSer.getElementsByTagNameNS(ns.c, 'cat')[0];
+                if (pieCatElement) {
+                    log('成功获取到cat元素');
+                    const pieStrCache = pieCatElement.getElementsByTagNameNS(ns.c, 'strCache')[0];
+                    if (pieStrCache) {
+                        const piePtElements = pieStrCache.getElementsByTagNameNS(ns.c, 'pt');
+                        log(`成功获取到${piePtElements.length}个分类数据点`);
+                        for (let i = 0; i < piePtElements.length; i++) {
+                            const vElement = piePtElements[i].getElementsByTagNameNS(ns.c, 'v')[0];
+                            log(`分类${i + 1}: ${vElement.textContent}`);
+                        }
+                    }
+                } else {
+                    log('无法获取到cat元素', false);
+                }
+            } else {
+                log('无法获取到pieChartElement元素', false);
+            }
+
+            // 测试面积图
+            addTestTitle('\n测试面积图:');
+            const areaChartDoc = parser.parseFromString(areaChartXml, 'text/xml');
+            const areaPlotArea = areaChartDoc.getElementsByTagNameNS(ns.c, 'plotArea')[0];
+            
+            // 模拟chart-to-svg.ts中的代码逻辑
+            let areaChartType = '';
+            if (areaPlotArea.getElementsByTagNameNS(ns.c, 'areaChart').length > 0) {
+                areaChartType = 'area';
+            }
+            log(`检测到图表类型: ${areaChartType}`);
+
+            // 使用修复后的方法获取图表元素
+            const areaChartElement = areaPlotArea.getElementsByTagNameNS(ns.c, `${areaChartType}Chart`)[0];
+            if (areaChartElement) {
+                log('成功获取到areaChartElement元素');
+                const areaSerElements = areaChartElement.getElementsByTagNameNS(ns.c, 'ser');
+                log(`成功获取到${areaSerElements.length}个系列元素`);
+                
+                // 测试分类数据提取
+                for (let i = 0; i < areaSerElements.length; i++) {
+                    const areaSer = areaSerElements[i];
+                    const areaCatElement = areaSer.getElementsByTagNameNS(ns.c, 'cat')[0];
+                    if (areaCatElement) {
+                        log(`系列${i + 1}: 成功获取到cat元素`);
+                        const areaNumCache = areaCatElement.getElementsByTagNameNS(ns.c, 'numCache')[0];
+                        if (areaNumCache) {
+                            const areaPtElements = areaNumCache.getElementsByTagNameNS(ns.c, 'pt');
+                            log(`系列${i + 1}: 成功获取到${areaPtElements.length}个分类数据点`);
+                        }
+                    } else {
+                        log(`系列${i + 1}: 无法获取到cat元素`, false);
+                    }
+                }
+            } else {
+                log('无法获取到areaChartElement元素', false);
+            }
+
+            // 总结
+            addTestTitle('\n测试完成！');
+        }
+
+        // 运行测试
+        runTests();
+    </script>
+</body>
+</html>

@@ -22,6 +22,7 @@ import { BaseHeaderFooterPart } from './header-footer/parts';
 import { Part } from './common/part';
 import { VmlElement } from './vml/vml';
 import { WmlComment, WmlCommentRangeStart, WmlCommentReference } from './comments/elements';
+import { ChartToSvgConverter } from './chart/chart-to-svg';
 
 const ns = {
 	svg: "http://www.w3.org/2000/svg",
@@ -1090,17 +1091,41 @@ section.${c}>footer { z-index: 1; }
 
 				// 将图表XML存储在data属性中，以便用户可以使用自己的图表库渲染
 				result.setAttribute("data-chart-xml", chartXml);
-				// 暂时添加一个占位符文本
-				// result.textContent = "Chart placeholder";
-				result.textContent = "当前的前端预览 docx 不支持 chart 图表渲染, 请下载文件后预览，或者点击上方预览按钮使用 onlyoffice 预览";
-				result.style.color = 'red';
-				result.style.fontWeight = 'bold';
-				result.style.fontSize = '14px';
-				result.style.height = '100%';
-				result.style.padding = '2px 4px';
-				result.style.border = '1px solid #cccccc';
-				result.style['background-color'] = '#ffffe0';
-				result.style['border-radius'] = '4px';
+				
+				try {
+					const converter = new ChartToSvgConverter();
+					const svg = converter.convertToSvg(chartXml);
+					
+					// 设置SVG尺寸
+					svg.setAttribute('width', '100%');
+					svg.setAttribute('height', '100%');
+					
+					// 清空result内容并添加SVG
+					result.innerHTML = '';
+					result.appendChild(svg);
+					
+					// 移除原来的错误样式
+					delete result.style.color;
+					delete result.style.fontWeight;
+					delete result.style.fontSize;
+					delete result.style['background-color'];
+					delete result.style['border-radius'];
+					result.style.border = 'none';
+					result.style.padding = '0';
+					result.style.height = '100%';
+				} catch (error) {
+					console.error('Chart to SVG conversion error:', error);
+					// 转换失败时显示错误信息
+					result.textContent = "图表渲染失败：" + (error as Error).message;
+					result.style.color = 'red';
+					result.style.fontWeight = 'bold';
+					result.style.fontSize = '14px';
+					result.style.height = '100%';
+					result.style.padding = '2px 4px';
+					result.style.border = '1px solid #cccccc';
+					result.style['background-color'] = '#ffffe0';
+					result.style['border-radius'] = '4px';
+				}
 			}));
 		}
 
