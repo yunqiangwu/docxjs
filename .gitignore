@@ -8,3 +8,4 @@ docx.js.map
 *.log
 
 /dist/docx*
+!dist/docx-preview.js

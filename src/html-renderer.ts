@@ -1118,7 +1118,7 @@ section.${c}>footer { z-index: 1; }
 
 					// 转换失败时显示错误信息
 					result.innerHTML = `
-	<img src="http://img.jajabjbj.top/warnSvg.svg" alt="" style="width: 50%;margin-bottom: 8px;">
+	<img src="https://pic.jajabjbj.top/warnSvg.svg" alt="" style="width: 50%;margin-bottom: 8px;">
 <div style="color: rgba(0, 0, 0, 0.45);line-height: 20px;font-size: 12px;">
 	当前预览工具，不支持该类型图表直接渲染；
 请点击上方 预览研究，或者下载后在本地预览。</div>					
