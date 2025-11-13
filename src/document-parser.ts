@@ -1,6 +1,6 @@
 import {
 	DomType, WmlTable, IDomNumbering,
-	WmlHyperlink, WmlSmartTag, IDomImage, OpenXmlElement, WmlTableColumn, WmlTableCell,
+	WmlHyperlink, WmlSmartTag, IDomImage, IDomChart, OpenXmlElement, WmlTableColumn, WmlTableCell,
 	WmlTableRow, NumberingPicBullet, WmlText, WmlSymbol, WmlBreak, WmlNoteReference,
 	WmlAltChunk
 } from './document/dom';
@@ -940,10 +940,17 @@ export class DocumentParser {
 			switch (n.localName) {
 				case "pic":
 					return this.parsePicture(n);
+				case "chart":
+					return this.parseChart(n);
 			}
 		}
 
 		return null;
+	}
+
+	parseChart(elem: Element): IDomChart {
+		var result = <IDomChart>{ type: DomType.Chart, src: xml.attr(elem, "id") || "", cssStyle: {} };
+		return result;
 	}
 
 	parsePicture(elem: Element): IDomImage {
@@ -1465,13 +1472,14 @@ export class DocumentParser {
 		var firstLine = xml.lengthAttr(node, "firstLine");
 		var hanging = xml.lengthAttr(node, "hanging");
 		var left = xml.lengthAttr(node, "left");
+		var w = xml.lengthAttr(node, "w");
 		var start = xml.lengthAttr(node, "start");
 		var right = xml.lengthAttr(node, "right");
 		var end = xml.lengthAttr(node, "end");
 
 		if (firstLine) style["text-indent"] = firstLine;
 		if (hanging) style["text-indent"] = `-${hanging}`;
-		if (left || start) style["margin-inline-start"] = left || start;
+		if (left || start || w) style["margin-inline-start"] = left || start || w;
 		if (right || end) style["margin-inline-end"] = right || end;
 	}
 

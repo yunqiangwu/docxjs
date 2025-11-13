@@ -1,7 +1,6 @@
 import { WordDocument } from './word-document';
-import {
-	DomType, WmlTable, IDomNumbering,
-	WmlHyperlink, IDomImage, OpenXmlElement, WmlTableColumn, WmlTableCell, WmlText, WmlSymbol, WmlBreak, WmlNoteReference,
+import { DomType, WmlTable, IDomNumbering,
+	WmlHyperlink, IDomImage, IDomChart, OpenXmlElement, WmlTableColumn, WmlTableCell, WmlText, WmlSymbol, WmlBreak, WmlNoteReference,
 	WmlSmartTag,
 	WmlAltChunk,
 	WmlTableRow
@@ -751,6 +750,9 @@ section.${c}>footer { z-index: 1; }
 			case DomType.Image:
 				return this.renderImage(elem as IDomImage);
 
+			case DomType.Chart:
+				return this.renderChart(elem as IDomChart);
+
 			case DomType.Text:
 				return this.renderText(elem as WmlText);
 
@@ -1068,6 +1070,43 @@ section.${c}>footer { z-index: 1; }
 		return result;
 	}
 
+	renderChart(elem: IDomChart) {
+		let result = this.createElement("div");
+		let transform = elem.cssStyle?.transform;
+
+		// 设置图表容器的样式
+		result.className = "docx-chart";
+		this.renderStyleValues(elem.cssStyle, result);
+
+		if (elem.rotation)
+			transform = `rotate(${elem.rotation}deg) ${transform ?? ''}`;
+
+		result.style.transform = transform?.trim();
+
+		if (this.document) {
+			this.tasks.push(this.document.loadDocumentChart(elem.src, this.currentPart).then(chartXml => {
+
+				// chartXml 的数据案例： ../tests/render-test/chart/chart1.xml
+
+				// 将图表XML存储在data属性中，以便用户可以使用自己的图表库渲染
+				result.setAttribute("data-chart-xml", chartXml);
+				// 暂时添加一个占位符文本
+				// result.textContent = "Chart placeholder";
+				result.textContent = "当前的前端预览 docx 不支持 chart 图表渲染, 请下载文件后预览，或者点击上方预览按钮使用 onlyoffice 预览";
+				result.style.color = 'red';
+				result.style.fontWeight = 'bold';
+				result.style.fontSize = '14px';
+				result.style.height = '100%';
+				result.style.padding = '2px 4px';
+				result.style.border = '1px solid #cccccc';
+				result.style['background-color'] = '#ffffe0';
+				result.style['border-radius'] = '4px';
+			}));
+		}
+
+		return result;
+	}
+
 	renderText(elem: WmlText) {
 		return this.htmlDocument.createTextNode(elem.text);
 	}
@@ -1174,6 +1213,19 @@ section.${c}>footer { z-index: 1; }
 
 		this.renderClass(elem, result);
 		this.renderElements(elem.children, result);
+
+		if(!elem.cssStyle["margin-inline-start"] && this.document.documentPart?.body?.props?.pageSize) {
+            const pageWidth = +this.document.documentPart.body.props.pageSize.width.replace(/[^\d^.]+/, '');
+            const pageMarginLeft = this.document.documentPart.body.props.pageMargins.left.replace(/[^\d^.]+/, '');
+            const pageMarginRight = this.document.documentPart.body.props.pageMargins.right.replace(/[^\d^.]+/, '');
+            const tableWidth = +elem.cssStyle["width"].replace(/[^\d^.]+/, '');
+            const pageContentWidth = (pageWidth - ( +pageMarginLeft + (+pageMarginRight) ));
+            if(tableWidth >  pageContentWidth) {
+                const shutSetMargIninlineStart = `-${((tableWidth - pageContentWidth) / 2) .toFixed(2) }pt`;
+                elem.cssStyle['margin-inline-start'] = shutSetMargIninlineStart;
+            }
+        }
+
 		this.renderStyleValues(elem.cssStyle, result);
 
 		this.currentVerticalMerge = this.tableVerticalMerges.pop();

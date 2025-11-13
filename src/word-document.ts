@@ -18,6 +18,7 @@ import { SettingsPart } from "./settings/settings-part";
 import { CustomPropsPart } from "./document-props/custom-props-part";
 import { CommentsPart } from "./comments/comments-part";
 import { CommentsExtendedPart } from "./comments/comments-extended-part";
+import { ChartPart } from './chart/chart-part';
 
 const topLevelRels = [
 	{ type: RelationshipTypes.OfficeDocument, target: "word/document.xml" },
@@ -137,6 +138,9 @@ export class WordDocument {
 			case RelationshipTypes.CommentsExtended:
 				this.commentsExtendedPart = part = new CommentsExtendedPart(this._package, path);
 				break;
+			case RelationshipTypes.Chart:
+				part = new ChartPart(this._package, path, this._parser);
+				break;
 		}
 
 		if (part == null)
@@ -158,6 +162,12 @@ export class WordDocument {
 	async loadDocumentImage(id: string, part?: Part): Promise<string> {
 		const x = await this.loadResource(part ?? this.documentPart, id, "blob");
 		return this.blobToURL(x);
+	}
+
+	async loadDocumentChart(id: string, part?: Part): Promise<string> {
+		// 加载图表XML数据
+		const chartXml = await this.loadResource(part ?? this.documentPart, id, "string");
+		return chartXml;
 	}
 
 	async loadNumberingImage(id: string): Promise<string> {

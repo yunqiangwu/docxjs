@@ -60,7 +60,8 @@ export enum DomType {
 	CommentReference = "commentReference",
 	CommentRangeStart = "commentRangeStart",
 	CommentRangeEnd = "commentRangeEnd",
-    AltChunk = "altChunk"
+    AltChunk = "altChunk",
+    Chart = "chart"
 }
 
 export interface OpenXmlElement {
@@ -141,6 +142,13 @@ export interface IDomImage extends OpenXmlElement {
     src: string;
     srcRect: number[];
     rotation: number;
+}
+
+export interface IDomChart extends OpenXmlElement {
+    type: DomType.Chart;
+    src: string;
+    srcRect?: number[];
+    rotation?: number;
 }
 
 export interface WmlTableColumn {

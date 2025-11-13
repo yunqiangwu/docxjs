@@ -33,9 +33,6 @@
 </head>
 
 <body class="vh-100 d-flex flex-column">
-    <div class="hstack bg-black no-print">
-        <a class="mx-auto p-2 text-white" href="https://war.ukraine.ua">Support Ukraine 🇺🇦</a>
-    </div>
 
     <div class="hstack p-2 gap-2 bg-light no-print">
 
@@ -128,7 +125,7 @@
 
         const selectedTest = new URLSearchParams(location.search).get('test');
 
-        for (let testName of ['text','underlines','text-break','line-spacing','numbering','page-layout','table','table-spans','footnote','header-footer','revision','equation'])
+        for (let testName of ['text','underlines','text-break','line-spacing','numbering','page-layout','table','table-spans','footnote','header-footer','revision','equation','chart'])
         {
             var op = document.createElement("option");
             op.value = testName;
