@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Error SVG Test</title>
+</head>
+<body>
+    <h1>Error SVG Test</h1>
+    <div id="error-container"></div>
+
+    <script src="dist/docx-preview.js"></script>
+    <script>
+        // Mock the chart-to-svg module
+        const mockChartToSvg = {
+            createErrorSvg: function(errorMessage) {
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.setAttribute('width', '800px');
+                svg.setAttribute('height', '600px');
+                svg.setAttribute('viewBox', '0 0 800 600');
+                svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+                // 创建背景
+                const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                background.setAttribute('x', '0');
+                background.setAttribute('y', '0');
+                background.setAttribute('width', '800');
+                background.setAttribute('height', '600');
+                background.setAttribute('fill', '#ffffff');
+                svg.appendChild(background);
+
+                // 创建蓝色警告三角形
+                const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                triangle.setAttribute('d', 'M 300 200 L 450 200 L 375 350 Z');
+                triangle.setAttribute('fill', '#2196F3');
+                svg.appendChild(triangle);
+
+                // 创建警告三角形内的感叹号
+                const exclamationMark = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                exclamationMark.setAttribute('x', '375');
+                exclamationMark.setAttribute('y', '280');
+                exclamationMark.setAttribute('text-anchor', 'middle');
+                exclamationMark.setAttribute('font-size', '48px');
+                exclamationMark.setAttribute('fill', '#FFFFFF');
+                exclamationMark.setAttribute('font-weight', 'bold');
+                exclamationMark.textContent = '!';
+                svg.appendChild(exclamationMark);
+
+                // 创建平板设备
+                const tablet = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                tablet.setAttribute('x', '400');
+                tablet.setAttribute('y', '150');
+                tablet.setAttribute('width', '250');
+                tablet.setAttribute('height', '300');
+                tablet.setAttribute('fill', '#FFFFFF');
+                tablet.setAttribute('stroke', '#9E9E9E');
+                tablet.setAttribute('stroke-width', '4');
+                tablet.setAttribute('rx', '8');
+                svg.appendChild(tablet);
+
+                // 创建平板设备的阴影
+                const tabletShadow = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                tabletShadow.setAttribute('x', '410');
+                tabletShadow.setAttribute('y', '160');
+                tabletShadow.setAttribute('width', '230');
+                tabletShadow.setAttribute('height', '280');
+                tabletShadow.setAttribute('fill', '#F5F5F5');
+                svg.appendChild(tabletShadow);
+
+                // 创建平板上的关闭按钮
+                const closeBtn = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                closeBtn.setAttribute('x', '420');
+                closeBtn.setAttribute('y', '170');
+                closeBtn.setAttribute('width', '20');
+                closeBtn.setAttribute('height', '20');
+                closeBtn.setAttribute('fill', '#F44336');
+                svg.appendChild(closeBtn);
+
+                // 创建关闭按钮上的X
+                const closeX1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                closeX1.setAttribute('x1', '422');
+                closeX1.setAttribute('y1', '172');
+                closeX1.setAttribute('x2', '438');
+                closeX1.setAttribute('y2', '188');
+                closeX1.setAttribute('stroke', '#FFFFFF');
+                closeX1.setAttribute('stroke-width', '2');
+                svg.appendChild(closeX1);
+
+                const closeX2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                closeX2.setAttribute('x1', '438');
+                closeX2.setAttribute('y1', '172');
+                closeX2.setAttribute('x2', '422');
+                closeX2.setAttribute('y2', '188');
+                closeX2.setAttribute('stroke', '#FFFFFF');
+                closeX2.setAttribute('stroke-width', '2');
+                svg.appendChild(closeX2);
+
+                // 创建平板内的柱状图
+                const bar1 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                bar1.setAttribute('x', '450');
+                bar1.setAttribute('y', '300');
+                bar1.setAttribute('width', '20');
+                bar1.setAttribute('height', '100');
+                bar1.setAttribute('fill', '#4FC3F7');
+                svg.appendChild(bar1);
+
+                const bar2 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                bar2.setAttribute('x', '490');
+                bar2.setAttribute('y', '250');
+                bar2.setAttribute('width', '20');
+                bar2.setAttribute('height', '150');
+                bar2.setAttribute('fill', '#4FC3F7');
+                svg.appendChild(bar2);
+
+                const bar3 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                bar3.setAttribute('x', '530');
+                bar3.setAttribute('y', '280');
+                bar3.setAttribute('width', '20');
+                bar3.setAttribute('height', '120');
+                bar3.setAttribute('fill', '#4FC3F7');
+                svg.appendChild(bar3);
+
+                // 创建平板内的折线图
+                const linePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                linePath.setAttribute('d', 'M 450 300 L 490 250 L 530 280');
+                linePath.setAttribute('fill', 'none');
+                linePath.setAttribute('stroke', '#FFC107');
+                linePath.setAttribute('stroke-width', '3');
+                svg.appendChild(linePath);
+
+                // 创建折线图的点
+                const point1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                point1.setAttribute('cx', '450');
+                point1.setAttribute('cy', '300');
+                point1.setAttribute('r', '4');
+                point1.setAttribute('fill', '#FFC107');
+                svg.appendChild(point1);
+
+                const point2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                point2.setAttribute('cx', '490');
+                point2.setAttribute('cy', '250');
+                point2.setAttribute('r', '4');
+                point2.setAttribute('fill', '#FFC107');
+                svg.appendChild(point2);
+
+                const point3 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                point3.setAttribute('cx', '530');
+                point3.setAttribute('cy', '280');
+                point3.setAttribute('r', '4');
+                point3.setAttribute('fill', '#FFC107');
+                svg.appendChild(point3);
+
+                // 创建错误提示文字
+                const errorText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                errorText.setAttribute('x', '400');
+                errorText.setAttribute('y', '480');
+                errorText.setAttribute('text-anchor', 'middle');
+                errorText.setAttribute('font-size', '16px');
+                errorText.setAttribute('fill', '#757575');
+                errorText.textContent = `当前预览工具，不支持${errorMessage}格式的图片直接渲染；`;
+                svg.appendChild(errorText);
+
+                // 创建第二行提示文字
+                const errorText2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                errorText2.setAttribute('x', '400');
+                errorText2.setAttribute('y', '500');
+                errorText2.setAttribute('text-anchor', 'middle');
+                errorText2.setAttribute('font-size', '16px');
+                errorText2.setAttribute('fill', '#757575');
+                errorText2.textContent = '请点击上方预览，或者下载后在本地预览。';
+                svg.appendChild(errorText2);
+
+                // 创建预览图标
+                const previewIcon = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                previewIcon.setAttribute('x', '380');
+                previewIcon.setAttribute('y', '520');
+                previewIcon.setAttribute('width', '32');
+                previewIcon.setAttribute('height', '32');
+                previewIcon.setAttribute('fill', '#E0E0E0');
+                svg.appendChild(previewIcon);
+
+                // 创建预览图标内的相机图案
+                const camera = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                camera.setAttribute('cx', '396');
+                camera.setAttribute('cy', '536');
+                camera.setAttribute('r', '8');
+                camera.setAttribute('fill', '#757575');
+                svg.appendChild(camera);
+
+                const cameraLens = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                cameraLens.setAttribute('cx', '396');
+                cameraLens.setAttribute('cy', '536');
+                cameraLens.setAttribute('r', '4');
+                cameraLens.setAttribute('fill', '#BDBDBD');
+                svg.appendChild(cameraLens);
+
+                // 创建预览文字
+                const previewText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                previewText.setAttribute('x', '420');
+                previewText.setAttribute('y', '545');
+                previewText.setAttribute('font-size', '14px');
+                previewText.setAttribute('fill', '#757575');
+                previewText.textContent = '预览';
+                svg.appendChild(previewText);
+
+                return svg;
+            }
+        };
+
+        // Test the error SVG
+        const errorMessage = 'PNG';
+        const errorSvg = mockChartToSvg.createErrorSvg(errorMessage);
+        document.getElementById('error-container').appendChild(errorSvg);
+    </script>
+</body>
+</html>

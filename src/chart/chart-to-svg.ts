@@ -46,8 +46,7 @@ export class ChartToSvgConverter {
             const chartData = this.parseChartXml(xmlDoc);
             return this.generateSvg(chartData, config);
         } catch (error) {
-            console.error('Chart XML parsing error:', error);
-            return this.createErrorSvg(error.message || '无法解析图表数据');
+            throw new Error(error.message || '无法解析图表数据');
         }
     }
 
@@ -842,39 +841,5 @@ export class ChartToSvgConverter {
                 svg.appendChild(circle);
             });
         });
-    }
-
-    /**
-     * 创建错误提示SVG
-     * @param errorMessage 错误信息
-     * @returns SVG元素
-     */
-    private createErrorSvg(errorMessage: string): SVGSVGElement {
-        const svg = (window as any).document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '800px');
-        svg.setAttribute('height', '600px');
-        svg.setAttribute('viewBox', '0 0 800 600');
-        svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-
-        // 创建背景
-        const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        background.setAttribute('x', '0');
-        background.setAttribute('y', '0');
-        background.setAttribute('width', '800');
-        background.setAttribute('height', '600');
-        background.setAttribute('fill', '#ffffff');
-        svg.appendChild(background);
-
-        // 创建错误提示文本
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', '400');
-        text.setAttribute('y', '300');
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('font-size', '16px');
-        text.setAttribute('fill', '#d62728');
-        text.textContent = errorMessage;
-        svg.appendChild(text);
-
-        return svg;
     }
 }
