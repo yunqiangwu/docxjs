@@ -1071,6 +1071,26 @@ section.${c}>footer { z-index: 1; }
 		return result;
 	}
 
+	renderErrorResult(result: HTMLElement, message: string = '') {
+		// 转换失败时显示错误信息
+		result.innerHTML = `
+<img src="https://pic.jajabjbj.top/warnSvg.svg" alt="" style="width: 50%;margin-bottom: 8px;">
+<div style="color: rgba(0, 0, 0, 0.45);line-height: 20px;font-size: 12px;">
+${message || '当前预览工具，不支持该类型图表直接渲染；\n请点击上方【预览按钮】，或者下载后在本地预览。'}
+</div>					
+`;
+		result.style.color = 'red';
+		result.style.fontWeight = 'bold';
+		result.style.fontSize = '14px';
+		result.style.height = '100%';
+		result.style.textAlign = 'center';
+		result.style.padding = '2px 4px';
+		result.style.border = '1px solid rgba(0, 0, 0, 0.06)';
+		result.style['background-color'] = '#F9FAFB';
+		result.style['border-radius'] = '4px';
+		return result;
+	}
+
 	renderChart(elem: IDomChart) {
 		let result = this.createElement("div");
 		let transform = elem.cssStyle?.transform;
@@ -1115,23 +1135,7 @@ section.${c}>footer { z-index: 1; }
 					result.style.height = '100%';
 				} catch (error) {
 					console.error('Chart to SVG conversion error:', error);
-
-					// 转换失败时显示错误信息
-					result.innerHTML = `
-	<img src="https://pic.jajabjbj.top/warnSvg.svg" alt="" style="width: 50%;margin-bottom: 8px;">
-<div style="color: rgba(0, 0, 0, 0.45);line-height: 20px;font-size: 12px;">
-	当前预览工具，不支持该类型图表直接渲染；
-请点击上方【预览按钮】，或者下载后在本地预览。</div>					
-`;
-					result.style.color = 'red';
-					result.style.fontWeight = 'bold';
-					result.style.fontSize = '14px';
-					result.style.height = '100%';
-					result.style.textAlign = 'center';
-					result.style.padding = '2px 4px';
-					result.style.border = '1px solid rgba(0, 0, 0, 0.06)';
-					result.style['background-color'] = '#F9FAFB';
-					result.style['border-radius'] = '4px';
+					this.renderErrorResult(result);
 				}
 			}));
 		}
@@ -1335,8 +1339,15 @@ section.${c}>footer { z-index: 1; }
 		return result;
 	}
 
+	isRenderedVmlError = false;
+
 	renderVmlPicture(elem: OpenXmlElement) {
-		return this.renderContainer(elem, "div");
+		if(this.isRenderedVmlError) {
+			return this.createElement("div");
+		}
+		this.isRenderedVmlError = true;
+		return this.renderErrorResult(this.createElement("div"), "当前预览不支持 vmlPicture");
+		// return this.renderContainer(elem, "div");
 	}
 
 	renderVmlElement(elem: VmlElement): SVGElement {
