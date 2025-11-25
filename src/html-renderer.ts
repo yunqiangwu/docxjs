@@ -1346,7 +1346,7 @@ ${message || '当前预览工具，不支持该类型图表直接渲染；\n请�
 			return this.createElement("div");
 		}
 		this.isRenderedVmlError = true;
-		return this.renderErrorResult(this.createElement("div"), "当前预览不支持 vmlPicture");
+		return this.renderErrorResult(this.createElement("div"), "当前预览工具，不支持该类型图表直接渲染；\n请点击上方【预览按钮】，或者下载后在本地预览。");
 		// return this.renderContainer(elem, "div");
 	}
 
