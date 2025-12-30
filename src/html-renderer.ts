@@ -1254,9 +1254,9 @@ ${message || '当前预览工具，不支持该类型图表直接渲染；\n请�
             const pageWidth = +this.document.documentPart.body.props.pageSize.width.replace(/[^\d^.]+/, '');
             const pageMarginLeft = this.document.documentPart.body.props.pageMargins.left.replace(/[^\d^.]+/, '');
             const pageMarginRight = this.document.documentPart.body.props.pageMargins.right.replace(/[^\d^.]+/, '');
-            const tableWidth = +elem.cssStyle["width"].replace(/[^\d^.]+/, '');
+            const tableWidth = +elem.cssStyle["width"]?.replace(/[^\d^.]+/, '');
             const pageContentWidth = (pageWidth - ( +pageMarginLeft + (+pageMarginRight) ));
-            if(tableWidth >  pageContentWidth) {
+            if(tableWidth && tableWidth >  pageContentWidth) {
                 const shutSetMargIninlineStart = `-${((tableWidth - pageContentWidth) / 2) .toFixed(2) }pt`;
                 elem.cssStyle['margin-inline-start'] = shutSetMargIninlineStart;
             }
